@@ -1,7 +1,7 @@
 #![deny(missing_docs)]
 //! This is a crate for the tiniest sets ever.
 
-mod iter;
+pub(crate) mod iter;
 pub use iter::IntoIter;
 
 const fn num_bits<T>() -> u64 {
@@ -694,6 +694,76 @@ mod serde {
     }
 }
 
+#[cfg(feature = "rkyv")]
+mod rkyv {
+    use rkyv::rancor;
+    use rkyv::ser::{Allocator, Writer};
+    use rkyv::vec::{ArchivedVec, VecResolver};
+    use rkyv::{Archive, Deserialize, Place, Serialize};
+
+    use crate::SetU64;
+
+    impl Archive for SetU64 {
+        type Archived = ArchivedVec<rkyv::Archived<u64>>;
+        type Resolver = VecResolver;
+
+        fn resolve(&self, resolver: Self::Resolver, out: Place<Self::Archived>) {
+            ArchivedVec::resolve_from_len(self.len(), resolver, out);
+        }
+    }
+
+    impl<S: rancor::Fallible + Allocator + Writer + ?Sized> Serialize<S> for SetU64 {
+        fn serialize(
+            &self,
+            serializer: &mut S,
+        ) -> Result<Self::Resolver, <S as rancor::Fallible>::Error> {
+            ArchivedVec::serialize_from_iter(self.inner_iter(), serializer)
+        }
+    }
+
+    impl<D: rancor::Fallible + ?Sized> Deserialize<SetU64, D>
+        for ArchivedVec<rkyv::Archived<u64>>
+    where
+        <D as rancor::Fallible>::Error: rancor::Source,
+    {
+        fn deserialize(
+            &self,
+            deserializer: &mut D,
+        ) -> Result<SetU64, <D as rancor::Fallible>::Error> {
+            let mut set = SetU64::new();
+            for archived_elem in self.as_slice() {
+                set.insert(archived_elem.deserialize(deserializer)?);
+            }
+            Ok(set)
+        }
+    }
+
+    #[test]
+    fn roundtrip() {
+        use std::iter::FromIterator;
+
+        let set = SetU64::from_iter([0]);
+        let bytes = rkyv::to_bytes::<rancor::Error>(&set).unwrap();
+        let deserialized = rkyv::from_bytes::<SetU64, rancor::Error>(&bytes).unwrap();
+        assert_eq!(set, deserialized);
+
+        let set = SetU64::from_iter([]);
+        let bytes = rkyv::to_bytes::<rancor::Error>(&set).unwrap();
+        let deserialized = rkyv::from_bytes::<SetU64, rancor::Error>(&bytes).unwrap();
+        assert_eq!(set, deserialized);
+
+        let set = SetU64::from_iter([u64::MAX, u64::MAX - 100]);
+        let bytes = rkyv::to_bytes::<rancor::Error>(&set).unwrap();
+        let deserialized = rkyv::from_bytes::<SetU64, rancor::Error>(&bytes).unwrap();
+        assert_eq!(set, deserialized);
+
+        let set = SetU64::from_iter(0..10000u64);
+        let bytes = rkyv::to_bytes::<rancor::Error>(&set).unwrap();
+        let deserialized = rkyv::from_bytes::<SetU64, rancor::Error>(&bytes).unwrap();
+        assert_eq!(set, deserialized);
+    }
+}
+
 impl Clone for SetU64 {
     fn clone(&self) -> Self {
         if self.0 as usize & 7 == 0 && self.0 != std::ptr::null_mut() {
@@ -723,8 +793,8 @@ impl SetU64 {
     /// Create an empty set with capacity to hold the provided set.
     ///
     /// ```
-    /// let a: tinyset::SetU64 = (1..300).collect();
-    /// let mut b = tinyset::SetU64::with_capacity_of(&a);
+    /// let a: fugue_tinyset::SetU64 = (1..300).collect();
+    /// let mut b = fugue_tinyset::SetU64::with_capacity_of(&a);
     ///
     /// assert_eq!(a.capacity(), b.capacity());
     /// assert_eq!(b.len(), 0);
@@ -1386,7 +1456,7 @@ fn bytes_for_capacity(sz: usize) -> usize {
 fn layout_for_capacity(sz: usize) -> std::alloc::Layout {
     let size = bytes_for_capacity(sz);
     if size >= usize::MAX / 2 {
-        panic!("tinyset size is too large: {}", sz);
+        panic!("fugue_tinyset size is too large: {}", sz);
     }
     unsafe { std::alloc::Layout::from_size_align_unchecked(size, 8) }
 }

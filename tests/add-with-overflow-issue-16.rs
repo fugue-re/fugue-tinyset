@@ -1,4 +1,4 @@
-use tinyset::Set64;
+use fugue_tinyset::Set64;
 
 #[test]
 fn issue_16() {

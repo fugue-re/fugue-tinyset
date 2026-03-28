@@ -28,7 +28,7 @@ impl SetUsize {
     /// Create an empty set with capacity to hold the provided set.
     ///
     /// ```
-    /// use tinyset::SetUsize;
+    /// use fugue_tinyset::SetUsize;
     ///
     /// let a: SetUsize = (1..300).collect();
     /// let mut b = SetUsize::with_capacity_of(&a);
@@ -208,6 +208,70 @@ fn serialize_deserialize() {
     let set = SetUsize::from_iter(0..10000);
     let s = serde_json::to_string(&set).unwrap();
     assert_eq!(set, serde_json::from_str(&s).unwrap());
+}
+
+#[cfg(feature = "rkyv")]
+impl rkyv::Archive for SetUsize {
+    type Archived = <Internal as rkyv::Archive>::Archived;
+    type Resolver = <Internal as rkyv::Archive>::Resolver;
+
+    fn resolve(&self, resolver: Self::Resolver, out: rkyv::Place<Self::Archived>) {
+        self.0.resolve(resolver, out);
+    }
+}
+
+#[cfg(feature = "rkyv")]
+impl<S> rkyv::Serialize<S> for SetUsize
+where
+    Internal: rkyv::Serialize<S>,
+    S: rkyv::rancor::Fallible + ?Sized,
+{
+    fn serialize(
+        &self,
+        serializer: &mut S,
+    ) -> Result<Self::Resolver, <S as rkyv::rancor::Fallible>::Error> {
+        rkyv::Serialize::serialize(&self.0, serializer)
+    }
+}
+
+#[cfg(feature = "rkyv")]
+impl<D> rkyv::Deserialize<SetUsize, D> for <Internal as rkyv::Archive>::Archived
+where
+    D: rkyv::rancor::Fallible + ?Sized,
+    <D as rkyv::rancor::Fallible>::Error: rkyv::rancor::Source,
+{
+    fn deserialize(
+        &self,
+        deserializer: &mut D,
+    ) -> Result<SetUsize, <D as rkyv::rancor::Fallible>::Error> {
+        rkyv::Deserialize::deserialize(self, deserializer).map(SetUsize)
+    }
+}
+
+#[cfg(feature = "rkyv")]
+#[test]
+fn roundtrip() {
+    use std::iter::FromIterator;
+
+    let set = SetUsize::from_iter([0]);
+    let bytes = rkyv::to_bytes::<rkyv::rancor::Error>(&set).unwrap();
+    let deserialized = rkyv::from_bytes::<SetUsize, rkyv::rancor::Error>(&bytes).unwrap();
+    assert_eq!(set, deserialized);
+
+    let set = SetUsize::from_iter([]);
+    let bytes = rkyv::to_bytes::<rkyv::rancor::Error>(&set).unwrap();
+    let deserialized = rkyv::from_bytes::<SetUsize, rkyv::rancor::Error>(&bytes).unwrap();
+    assert_eq!(set, deserialized);
+
+    let set = SetUsize::from_iter([usize::MAX, usize::MAX - 100]);
+    let bytes = rkyv::to_bytes::<rkyv::rancor::Error>(&set).unwrap();
+    let deserialized = rkyv::from_bytes::<SetUsize, rkyv::rancor::Error>(&bytes).unwrap();
+    assert_eq!(set, deserialized);
+
+    let set = SetUsize::from_iter(0..10000usize);
+    let bytes = rkyv::to_bytes::<rkyv::rancor::Error>(&set).unwrap();
+    let deserialized = rkyv::from_bytes::<SetUsize, rkyv::rancor::Error>(&bytes).unwrap();
+    assert_eq!(set, deserialized);
 }
 
 #[cfg(test)]

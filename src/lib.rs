@@ -44,7 +44,7 @@
 //! # Examples
 //!
 //! ```
-//! use tinyset::Set64;
+//! use fugue_tinyset::Set64;
 //! let mut s: Set64<usize> = Set64::new();
 //! s.insert(1);
 //! assert!(s.contains(&1));

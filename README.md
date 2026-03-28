@@ -1,12 +1,12 @@
 [![Build Status](https://github.com/droundy/tinyset/actions/workflows/rust.yml/badge.svg)](https://github.com/droundy/tinyset/actions)
 [![Build status](https://ci.appveyor.com/api/projects/status/h0rn4amvlwce10pl?svg=true)](https://ci.appveyor.com/project/droundy/tinyset)
-[![Crates.io version](https://img.shields.io/crates/v/tinyset.svg)](https://crates.io/crates/tinyset)
+[![Crates.io version](https://img.shields.io/crates/v/fugue-tinyset.svg)](https://crates.io/crates/fugue-tinyset)
 
-[Read the documentation.](https://docs.rs/tinyset)
+[Read the documentation.](https://docs.rs/fugue-tinyset)
 
-# tinyset
+# fugue-tinyset
 
-`tinyset` contains a few collections that are optimized to scale
+`fugue-tinyset` contains a few collections that are optimized to scale
 in size well for small numbers of elements, while still scaling
 well in time (and size) for numbers of elements.  We now have
 just a few types that you might care for.
@@ -42,7 +42,7 @@ used for randomization to avoid DOS collision attacks. You can speed up your
 compile (or use it on a platform unsupported by `rand`) by disabling this
 feature with
 ```
-tinyset = { version = "0.4", default-features = false }
+fugue-tinyset = { version = "0.4", default-features = false }
 ```
 which will result in using a very simple pseudorandom number generator
 seeded by the system time.
@@ -55,13 +55,13 @@ deletions from that set.
 There is a second optional dependency on `serde`, which serializes sets in
 non-compressed form.
 ```
-tinyset = { version = "0.4.13", features = ["serde"] }
+fugue-tinyset = { version = "0.4.13", features = ["serde"] }
 ```
 to enable this feature.
 
 There is also an experimental feature `compactserde` which serializes in a compact form
 identical to what is held in memory.  The format used, however, is not stable, so you
-cannot expect your serialized sets to be readable by a different version of `tinyset`.
+cannot expect your serialized sets to be readable by a different version of `fugue-tinyset`.
 If you would like to have a stable and compact serialized format, please file an issue.
 Note also that a corrupt (or malicious) file could easily trigger undefined behavior,
 besides just triggering incorrect and confusing behavior.

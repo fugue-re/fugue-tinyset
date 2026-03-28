@@ -11,7 +11,7 @@ impl SetU64 {
 }
 
 impl SetU64 {
-    fn inner_iter(&self) -> Inner<&SetU64> {
+    pub(crate) fn inner_iter(&self) -> Inner<&SetU64> {
         match self.internal() {
             Internal::Empty => Inner::empty(self),
             Internal::Stack(t) => Inner {
@@ -88,8 +88,10 @@ impl Iterator for IntoIter {
     }
 }
 
+impl ExactSizeIterator for IntoIter {}
+
 #[derive(Debug, Clone)]
-struct Inner<T: Borrow<SetU64>> {
+pub(crate) struct Inner<T: Borrow<SetU64>> {
     sz: usize,
     sz_left: usize,
     bits: u64,
@@ -295,3 +297,5 @@ impl<T: Borrow<SetU64>> Iterator for Inner<T> {
         (self.sz_left, Some(self.sz_left))
     }
 }
+
+impl<T: Borrow<SetU64>> ExactSizeIterator for Inner<T> {}

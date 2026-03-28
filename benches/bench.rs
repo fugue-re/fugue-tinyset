@@ -27,7 +27,7 @@ fn bench_sets(density: f64, num_elements: usize) {
     let gen32 = move || {
         let mut rng = rand::thread_rng();
         let mx = (num_elements as f64 / density) as u32 + 1;
-        let mut set = tinyset::SetU32::new();
+        let mut set = fugue_tinyset::SetU32::new();
         while set.len() < num_elements {
             set.insert(rng.gen_range(0..mx));
         }
@@ -63,7 +63,7 @@ fn bench_sets(density: f64, num_elements: usize) {
     let gen = move || {
         let mut rng = rand::thread_rng();
         let mx = (num_elements as f64 / density) as u64 + 1;
-        let mut set = tinyset::SetU64::new();
+        let mut set = fugue_tinyset::SetU64::new();
         while set.len() < num_elements {
             set.insert(rng.gen_range(0..mx));
         }
@@ -87,7 +87,7 @@ fn bench_sets(density: f64, num_elements: usize) {
     let gen_tiny = move || {
         let mut rng = rand::thread_rng();
         let mx = (num_elements as f64 / density) as u64 + 1;
-        let mut set = tinyset::Set64::new();
+        let mut set = fugue_tinyset::Set64::new();
         while set.len() < num_elements {
             set.insert(rng.gen_range(0..mx));
         }
@@ -184,7 +184,7 @@ fn bench_collect(density: f64) {
             let mut rng = rand::thread_rng();
             let mx = (sz as f64 / density) as u64 + 1;
             let mut vec = Vec::new();
-            while vec.iter().cloned().collect::<tinyset::SetU64>().len() < sz {
+            while vec.iter().cloned().collect::<fugue_tinyset::SetU64>().len() < sz {
                 vec.push(rng.gen_range(0..mx));
             }
             vec
@@ -193,7 +193,7 @@ fn bench_collect(density: f64) {
             let mut rng = rand::thread_rng();
             let mx = (sz as f64 / density) as u32 + 1;
             let mut vec = Vec::new();
-            while vec.iter().cloned().collect::<tinyset::SetU32>().len() < sz {
+            while vec.iter().cloned().collect::<fugue_tinyset::SetU32>().len() < sz {
                 vec.push(rng.gen_range(0..mx));
             }
             vec
@@ -203,7 +203,7 @@ fn bench_collect(density: f64) {
             sz,
             &[
                 bench_gen_env(&mut gen32, |v| {
-                    v.iter().cloned().collect::<tinyset::SetU32>().len()
+                    v.iter().cloned().collect::<fugue_tinyset::SetU32>().len()
                 })
                 .ns_per_iter,
                 bench_gen_env(&mut gen32, |v| {
@@ -218,11 +218,11 @@ fn bench_collect(density: f64) {
                 })
                 .ns_per_iter,
                 bench_gen_env(&mut gen, |v| {
-                    v.iter().cloned().collect::<tinyset::SetU64>().len()
+                    v.iter().cloned().collect::<fugue_tinyset::SetU64>().len()
                 })
                 .ns_per_iter,
                 bench_gen_env(&mut gen, |v| {
-                    v.iter().cloned().collect::<tinyset::Set64<_>>().len()
+                    v.iter().cloned().collect::<fugue_tinyset::Set64<_>>().len()
                 })
                 .ns_per_iter,
                 bench_gen_env(&mut gen, |v| {
@@ -240,7 +240,7 @@ fn bench_collect(density: f64) {
                 (0..nsize)
                     .map(|_| {
                         let v = gen32();
-                        mem_used(|| v.iter().cloned().collect::<tinyset::SetU32>()).1
+                        mem_used(|| v.iter().cloned().collect::<fugue_tinyset::SetU32>()).1
                     })
                     .sum::<usize>() as f64
                     / nsize as f64,
@@ -261,14 +261,14 @@ fn bench_collect(density: f64) {
                 (0..nsize)
                     .map(|_| {
                         let v = gen();
-                        mem_used(|| v.iter().cloned().collect::<tinyset::SetU64>()).1
+                        mem_used(|| v.iter().cloned().collect::<fugue_tinyset::SetU64>()).1
                     })
                     .sum::<usize>() as f64
                     / nsize as f64,
                 (0..nsize)
                     .map(|_| {
                         let v = gen();
-                        mem_used(|| v.iter().cloned().collect::<tinyset::Set64<_>>()).1
+                        mem_used(|| v.iter().cloned().collect::<fugue_tinyset::Set64<_>>()).1
                     })
                     .sum::<usize>() as f64
                     / nsize as f64,
@@ -286,7 +286,7 @@ fn bench_collect(density: f64) {
         let mut rng = rand::thread_rng();
         let mx = (sz as f64 / density) as u64 + 1;
         let mut vec = Vec::new();
-        while vec.iter().cloned().collect::<tinyset::SetU64>().len() < sz {
+        while vec.iter().cloned().collect::<fugue_tinyset::SetU64>().len() < sz {
             vec.push(rng.gen_range(0..mx));
         }
         vec
@@ -295,7 +295,7 @@ fn bench_collect(density: f64) {
         let mut rng = rand::thread_rng();
         let mx = (sz as f64 / density) as u32 + 1;
         let mut vec = Vec::new();
-        while vec.iter().cloned().collect::<tinyset::SetU32>().len() < sz {
+        while vec.iter().cloned().collect::<fugue_tinyset::SetU32>().len() < sz {
             vec.push(rng.gen_range(0..mx));
         }
         vec
@@ -305,7 +305,7 @@ fn bench_collect(density: f64) {
         ".collect()",
         bench_scaling_gen(
             &mut gen32,
-            |v| { v.iter().cloned().collect::<tinyset::SetU32>().len() },
+            |v| { v.iter().cloned().collect::<fugue_tinyset::SetU32>().len() },
             20
         )
         .scaling,
@@ -328,13 +328,13 @@ fn bench_collect(density: f64) {
         .scaling,
         bench_scaling_gen(
             &mut gen,
-            |v| { v.iter().cloned().collect::<tinyset::SetU64>().len() },
+            |v| { v.iter().cloned().collect::<fugue_tinyset::SetU64>().len() },
             20
         )
         .scaling,
         bench_scaling_gen(
             &mut gen,
-            |v| { v.iter().cloned().collect::<tinyset::Set64<_>>().len() },
+            |v| { v.iter().cloned().collect::<fugue_tinyset::Set64<_>>().len() },
             20
         )
         .scaling,
@@ -382,7 +382,7 @@ fn bench_fill_with_inserts(density: f64) {
             let mut rng = rand::thread_rng();
             let mx = (sz as f64 / density) as u64 + 1;
             let mut vec = Vec::new();
-            while vec.iter().cloned().collect::<tinyset::SetU64>().len() < sz {
+            while vec.iter().cloned().collect::<fugue_tinyset::SetU64>().len() < sz {
                 vec.push(rng.gen_range(0..mx));
             }
             vec
@@ -391,7 +391,7 @@ fn bench_fill_with_inserts(density: f64) {
             let mut rng = rand::thread_rng();
             let mx = (sz as f64 / density) as u32 + 1;
             let mut vec = Vec::new();
-            while vec.iter().cloned().collect::<tinyset::SetU32>().len() < sz {
+            while vec.iter().cloned().collect::<fugue_tinyset::SetU32>().len() < sz {
                 vec.push(rng.gen_range(0..mx));
             }
             vec
@@ -400,7 +400,7 @@ fn bench_fill_with_inserts(density: f64) {
             let mut rng = rand::thread_rng();
             let mx = (sz as f64 / density) as usize + 1;
             let mut vec = Vec::new();
-            while vec.iter().cloned().collect::<tinyset::SetUsize>().len() < sz {
+            while vec.iter().cloned().collect::<fugue_tinyset::SetUsize>().len() < sz {
                 vec.push(rng.gen_range(0..mx));
             }
             vec
@@ -410,7 +410,7 @@ fn bench_fill_with_inserts(density: f64) {
             sz,
             &[
                 bench_gen_env(&mut gen32, |v| {
-                    let mut s = tinyset::SetU32::new();
+                    let mut s = fugue_tinyset::SetU32::new();
                     for x in v.iter().cloned() {
                         s.insert(x);
                     }
@@ -434,7 +434,7 @@ fn bench_fill_with_inserts(density: f64) {
                 })
                 .ns_per_iter,
                 bench_gen_env(&mut gen, |v| {
-                    let mut s = tinyset::SetU64::new();
+                    let mut s = fugue_tinyset::SetU64::new();
                     for x in v.iter().cloned() {
                         s.insert(x);
                     }
@@ -442,7 +442,7 @@ fn bench_fill_with_inserts(density: f64) {
                 })
                 .ns_per_iter,
                 bench_gen_env(&mut gen, |v| {
-                    let mut s = tinyset::Set64::new();
+                    let mut s = fugue_tinyset::Set64::new();
                     for x in v.iter().cloned() {
                         s.insert(x);
                     }
@@ -474,7 +474,7 @@ fn bench_fill_with_inserts(density: f64) {
                     .map(|_| {
                         let v = gen32();
                         mem_used(|| {
-                            let mut s = tinyset::SetU32::new();
+                            let mut s = fugue_tinyset::SetU32::new();
                             for x in v.iter().cloned() {
                                 s.insert(x);
                             }
@@ -516,7 +516,7 @@ fn bench_fill_with_inserts(density: f64) {
                     .map(|_| {
                         let v = gen();
                         mem_used(|| {
-                            let mut s = tinyset::SetU64::new();
+                            let mut s = fugue_tinyset::SetU64::new();
                             for x in v.iter().cloned() {
                                 s.insert(x);
                             }
@@ -530,7 +530,7 @@ fn bench_fill_with_inserts(density: f64) {
                     .map(|_| {
                         let v = gen();
                         mem_used(|| {
-                            let mut s = tinyset::Set64::new();
+                            let mut s = fugue_tinyset::Set64::new();
                             for x in v.iter().cloned() {
                                 s.insert(x);
                             }
@@ -575,7 +575,7 @@ fn bench_fill_with_inserts(density: f64) {
         let mut rng = rand::thread_rng();
         let mx = (sz as f64 / density) as u64 + 1;
         let mut vec = Vec::new();
-        while vec.iter().cloned().collect::<tinyset::SetU64>().len() < sz {
+        while vec.iter().cloned().collect::<fugue_tinyset::SetU64>().len() < sz {
             vec.push(rng.gen_range(0..mx));
         }
         vec
@@ -584,7 +584,7 @@ fn bench_fill_with_inserts(density: f64) {
         let mut rng = rand::thread_rng();
         let mx = (sz as f64 / density) as u32 + 1;
         let mut vec = Vec::new();
-        while vec.iter().cloned().collect::<tinyset::SetU32>().len() < sz {
+        while vec.iter().cloned().collect::<fugue_tinyset::SetU32>().len() < sz {
             vec.push(rng.gen_range(0..mx));
         }
         vec
@@ -593,7 +593,7 @@ fn bench_fill_with_inserts(density: f64) {
         let mut rng = rand::thread_rng();
         let mx = (sz as f64 / density) as usize + 1;
         let mut vec = Vec::new();
-        while vec.iter().cloned().collect::<tinyset::SetUsize>().len() < sz {
+        while vec.iter().cloned().collect::<fugue_tinyset::SetUsize>().len() < sz {
             vec.push(rng.gen_range(0..mx));
         }
         vec
@@ -604,7 +604,7 @@ fn bench_fill_with_inserts(density: f64) {
         bench_scaling_gen(
             &mut gen32,
             |v| {
-                let mut s = tinyset::SetU32::new();
+                let mut s = fugue_tinyset::SetU32::new();
                 for x in v.iter().cloned() {
                     s.insert(x);
                 }
@@ -640,7 +640,7 @@ fn bench_fill_with_inserts(density: f64) {
         bench_scaling_gen(
             &mut gen,
             |v| {
-                let mut s = tinyset::SetU64::new();
+                let mut s = fugue_tinyset::SetU64::new();
                 for x in v.iter().cloned() {
                     s.insert(x);
                 }
@@ -652,7 +652,7 @@ fn bench_fill_with_inserts(density: f64) {
         bench_scaling_gen(
             &mut gen,
             |v| {
-                let mut s = tinyset::Set64::new();
+                let mut s = fugue_tinyset::Set64::new();
                 for x in v.iter().cloned() {
                     s.insert(x);
                 }
@@ -699,11 +699,11 @@ fn format_sz(sz: f64) -> String {
 fn bench_funcs<O>(
     name: &str,
     density: f64,
-    func32: impl Copy + Fn(&mut tinyset::SetU32) -> O,
+    func32: impl Copy + Fn(&mut fugue_tinyset::SetU32) -> O,
     funcroaring: impl Copy + Fn(&mut roaring::RoaringBitmap) -> O,
     funchash32: impl Copy + Fn(&mut std::collections::HashSet<u32>) -> O,
-    func64: impl Copy + Fn(&mut tinyset::SetU64) -> O,
-    oldtiny: impl Copy + Fn(&mut tinyset::Set64<u64>) -> O,
+    func64: impl Copy + Fn(&mut fugue_tinyset::SetU64) -> O,
+    oldtiny: impl Copy + Fn(&mut fugue_tinyset::Set64<u64>) -> O,
     funchash: impl Copy + Fn(&mut std::collections::HashSet<u64>) -> O,
     idset: impl Copy + Fn(&mut id_set::IdSet) -> O,
 ) {
@@ -717,7 +717,7 @@ fn bench_funcs<O>(
             let mut rng = rand::thread_rng();
             let mx = (sz as f64 / density) as u64 + 1;
             let mut vec = Vec::new();
-            while vec.iter().cloned().collect::<tinyset::SetU64>().len() < sz {
+            while vec.iter().cloned().collect::<fugue_tinyset::SetU64>().len() < sz {
                 vec.push(rng.gen_range(0..mx));
             }
             vec
@@ -725,11 +725,11 @@ fn bench_funcs<O>(
         println!("{:>9}:{:7.0}ns/{:<4} {:6.0}ns/{:<4} {:7.0}ns/{:<4} {:6.0}ns/{:<4} {:6.0}ns/{:<4} {:6.0}ns/{:<4} {:6.0}ns/{:<4}",
                  sz,
                  bench_gen_env(|| { gen().iter().cloned()
-                                    .map(|x| x as u32).collect::<tinyset::SetU32>() },
+                                    .map(|x| x as u32).collect::<fugue_tinyset::SetU32>() },
                                func32).ns_per_iter,
                  format_sz((0..100).map(|_| mem_used(|| gen().iter().cloned()
                                                      .map(|x| x as u32)
-                                                     .collect::<tinyset::SetU32>()).1)
+                                                     .collect::<fugue_tinyset::SetU32>()).1)
                            .sum::<usize>() as f64/100.0),
                  bench_gen_env(|| { gen().iter().cloned()
                                     .map(|x| x as u32).collect::<roaring::RoaringBitmap>() },
@@ -746,15 +746,15 @@ fn bench_funcs<O>(
                                                      .map(|x| x as u32)
                                                      .collect::<std::collections::HashSet<_>>()).1)
                            .sum::<usize>() as f64/100.0),
-                 bench_gen_env(|| { gen().iter().cloned().collect::<tinyset::SetU64>() },
+                 bench_gen_env(|| { gen().iter().cloned().collect::<fugue_tinyset::SetU64>() },
                                func64).ns_per_iter,
                  format_sz((0..100).map(|_| mem_used(|| gen().iter().cloned()
-                                                     .collect::<tinyset::SetU64>()).1)
+                                                     .collect::<fugue_tinyset::SetU64>()).1)
                            .sum::<usize>() as f64/100.0),
-                 bench_gen_env(|| { gen().iter().cloned().collect::<tinyset::Set64<_>>() },
+                 bench_gen_env(|| { gen().iter().cloned().collect::<fugue_tinyset::Set64<_>>() },
                                oldtiny).ns_per_iter,
                  format_sz((0..100).map(|_| mem_used(|| gen().iter().cloned()
-                                                     .collect::<tinyset::Set64<_>>()).1)
+                                                     .collect::<fugue_tinyset::Set64<_>>()).1)
                            .sum::<usize>() as f64/100.0),
                  bench_gen_env(|| { gen().iter().cloned().collect::<std::collections::HashSet<_>>() },
                                funchash).ns_per_iter,
@@ -775,7 +775,7 @@ fn bench_funcs<O>(
         let mut rng = rand::thread_rng();
         let mx = (sz as f64 / density) as u64 + 1;
         let mut vec = Vec::new();
-        while vec.iter().cloned().collect::<tinyset::SetU64>().len() < sz {
+        while vec.iter().cloned().collect::<fugue_tinyset::SetU64>().len() < sz {
             vec.push(rng.gen_range(0..mx));
         }
         vec
@@ -789,7 +789,7 @@ fn bench_funcs<O>(
                     .iter()
                     .cloned()
                     .map(|x| x as u32)
-                    .collect::<tinyset::SetU32>()
+                    .collect::<fugue_tinyset::SetU32>()
             },
             func32,
             10
@@ -819,13 +819,13 @@ fn bench_funcs<O>(
         )
         .scaling,
         bench_scaling_gen(
-            |sz| { gen(sz).iter().cloned().collect::<tinyset::SetU64>() },
+            |sz| { gen(sz).iter().cloned().collect::<fugue_tinyset::SetU64>() },
             func64,
             10
         )
         .scaling,
         bench_scaling_gen(
-            |sz| { gen(sz).iter().cloned().collect::<tinyset::Set64<u64>>() },
+            |sz| { gen(sz).iter().cloned().collect::<fugue_tinyset::Set64<u64>>() },
             oldtiny,
             10
         )
@@ -903,7 +903,7 @@ fn bench_scaling(density: f64, min: usize) {
     let mut gen = move |num_elements| {
         let mut rng = rand::thread_rng();
         let mx = (num_elements as f64 / density) as u64 + 1;
-        let mut set = tinyset::SetU64::new();
+        let mut set = fugue_tinyset::SetU64::new();
         while set.len() < num_elements {
             set.insert(rng.gen_range(0..mx));
         }
@@ -921,7 +921,7 @@ fn bench_scaling(density: f64, min: usize) {
     let mut gen_tiny = move |num_elements| {
         let mut rng = rand::thread_rng();
         let mx = (num_elements as f64 / density) as u64 + 1;
-        let mut set = tinyset::Set64::new();
+        let mut set = fugue_tinyset::Set64::new();
         while set.len() < num_elements {
             set.insert(rng.gen_range(0..mx));
         }
@@ -963,7 +963,7 @@ fn bench_scaling(density: f64, min: usize) {
 }
 
 fn main() {
-    // let mut s = tinyset::SetU32::new();
+    // let mut s = fugue_tinyset::SetU32::new();
     // while s.len() < 10000 {
     //     s.insert(rand::random::<u32>() % 15000);
     // }
@@ -1007,7 +1007,7 @@ fn main() {
     bench_scaling(0.5, 8);
     bench_scaling(0.8, 8);
 
-    use tinyset::Fits64;
+    use fugue_tinyset::Fits64;
     println!(
         "i64<->u64: {}",
         bench_gen_env(

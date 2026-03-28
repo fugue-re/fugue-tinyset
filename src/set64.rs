@@ -150,7 +150,7 @@ define_ifits!(isize, usize, fits_isize);
 /// # Examples
 ///
 /// ```
-/// use tinyset::Set64;
+/// use fugue_tinyset::Set64;
 ///
 /// let a: Set64<char> = "Hello world".chars().collect();
 ///
@@ -299,7 +299,7 @@ impl<'a, 'b, T: Fits64> std::ops::Sub<&'b Set64<T>> for &'a Set64<T> {
     /// # Examples
     ///
     /// ```
-    /// use tinyset::Set64;
+    /// use fugue_tinyset::Set64;
     ///
     /// let a: Set64<u32> = vec![1, 2, 3].into_iter().collect();
     /// let b: Set64<u32> = vec![3, 4, 5].into_iter().collect();
@@ -331,7 +331,7 @@ impl<T: Fits64> Extend<T> for Set64<T> {
     /// # Examples
     ///
     /// ```
-    /// use tinyset::Set64;
+    /// use fugue_tinyset::Set64;
     ///
     /// let mut a: Set64<u32> = vec![1, 2, 3].into_iter().collect();
     /// a.extend(vec![3, 4, 5]);
@@ -457,6 +457,87 @@ mod serde {
     }
 }
 
+#[cfg(feature = "rkyv")]
+mod rkyv {
+    use rkyv::rancor;
+    use rkyv::ser::{Allocator, Writer};
+    use rkyv::vec::{ArchivedVec, VecResolver};
+    use rkyv::{Archive, Deserialize, Place, Serialize};
+
+    use crate::{Fits64, Set64};
+
+    impl<T: Fits64> Archive for Set64<T> {
+        type Archived = ArchivedVec<rkyv::Archived<u64>>;
+        type Resolver = VecResolver;
+
+        fn resolve(&self, resolver: Self::Resolver, out: Place<Self::Archived>) {
+            ArchivedVec::resolve_from_len(self.len(), resolver, out);
+        }
+    }
+
+    impl<T, S> Serialize<S> for Set64<T>
+    where
+        T: Fits64,
+        S: rancor::Fallible + Allocator + Writer + ?Sized,
+    {
+        fn serialize(
+            &self,
+            serializer: &mut S,
+        ) -> Result<Self::Resolver, <S as rancor::Fallible>::Error> {
+            ArchivedVec::serialize_from_iter(self.0.inner_iter(), serializer)
+        }
+    }
+
+    impl<T, D> Deserialize<Set64<T>, D> for ArchivedVec<rkyv::Archived<u64>>
+    where
+        T: Fits64,
+        D: rancor::Fallible + ?Sized,
+        <D as rancor::Fallible>::Error: rancor::Source,
+    {
+        fn deserialize(
+            &self,
+            deserializer: &mut D,
+        ) -> Result<Set64<T>, <D as rancor::Fallible>::Error> {
+            let mut set = Set64::new();
+            for archived_elem in self.as_slice() {
+                let raw = archived_elem.deserialize(deserializer)?;
+                set.insert(unsafe { T::from_u64(raw) });
+            }
+            Ok(set)
+        }
+    }
+
+    #[test]
+    fn roundtrip() {
+        use std::iter::FromIterator;
+
+        let set = Set64::<usize>::from_iter([0]);
+        let bytes = rkyv::to_bytes::<rancor::Error>(&set).unwrap();
+        let deserialized = rkyv::from_bytes::<Set64<usize>, rancor::Error>(&bytes).unwrap();
+        assert_eq!(set, deserialized);
+
+        let set = Set64::<usize>::from_iter([]);
+        let bytes = rkyv::to_bytes::<rancor::Error>(&set).unwrap();
+        let deserialized = rkyv::from_bytes::<Set64<usize>, rancor::Error>(&bytes).unwrap();
+        assert_eq!(set, deserialized);
+
+        let set = Set64::<usize>::from_iter([usize::MAX, usize::MAX - 100]);
+        let bytes = rkyv::to_bytes::<rancor::Error>(&set).unwrap();
+        let deserialized = rkyv::from_bytes::<Set64<usize>, rancor::Error>(&bytes).unwrap();
+        assert_eq!(set, deserialized);
+
+        let set = Set64::<usize>::from_iter(0..10000usize);
+        let bytes = rkyv::to_bytes::<rancor::Error>(&set).unwrap();
+        let deserialized = rkyv::from_bytes::<Set64<usize>, rancor::Error>(&bytes).unwrap();
+        assert_eq!(set, deserialized);
+
+        let set = Set64::<i32>::from_iter([-100, -1, 0, 1, 100]);
+        let bytes = rkyv::to_bytes::<rancor::Error>(&set).unwrap();
+        let deserialized = rkyv::from_bytes::<Set64<i32>, rancor::Error>(&bytes).unwrap();
+        assert_eq!(set, deserialized);
+    }
+}
+
 impl<'a, 'b, T: Fits64> std::ops::BitOr<&'b Set64<T>> for &'a Set64<T> {
     type Output = Set64<T>;
 
@@ -465,7 +546,7 @@ impl<'a, 'b, T: Fits64> std::ops::BitOr<&'b Set64<T>> for &'a Set64<T> {
     /// # Examples
     ///
     /// ```
-    /// use tinyset::Set64;
+    /// use fugue_tinyset::Set64;
     ///
     /// let a: Set64<u32> = vec![1, 2, 3].into_iter().collect();
     /// let b: Set64<u32> = vec![3, 4, 5].into_iter().collect();

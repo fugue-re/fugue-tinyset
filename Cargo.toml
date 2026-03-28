@@ -1,5 +1,5 @@
 [package]
-name = "tinyset"
+name = "fugue-tinyset"
 version = "0.5.2"
 authors = ["David Roundy <daveroundy@gmail.com>"]
 categories = ["data-structures"]
@@ -9,7 +9,7 @@ description = "Size-optimized sets"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/droundy/tinyset"
 edition = "2018"
-rust-version = "1.63"
+rust-version = "1.81"
 
 readme = "README.md"
 
@@ -24,15 +24,18 @@ stats_alloc = "0.1.8"
 roaring = "0.6.0"
 id-set = "0.2.2"
 serde_json = "1.0"
+rkyv = { version = "0.8", features = ["alloc", "bytecheck"] }
 
 [dependencies]
 rand = { version = "0.8.4", optional = true }
 serde = { version = "1.0", optional = true }
+rkyv = { version = "0.8", optional = true, default-features = false, features = ["alloc"] }
 
 [features]
 
 default = ["rand"]
 compactserde = ["serde"]
+rkyv = ["dep:rkyv"]
 deterministic_iteration = []
 
 [[bench]]

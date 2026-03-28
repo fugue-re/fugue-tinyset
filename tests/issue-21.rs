@@ -1,4 +1,4 @@
-use tinyset::SetU64;
+use fugue_tinyset::SetU64;
 
 #[test]
 fn collision_panic() {

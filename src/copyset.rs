@@ -42,8 +42,8 @@ impl<'a, 'b> std::ops::Sub<&'b $ty> for &'a $ty {
 # Examples
 
 ```
-let a: tinyset::",  stringify!($ty), " = (1..4).collect();
-let b: tinyset::",  stringify!($ty), " = (3..6).into_iter().collect();
+let a: fugue_tinyset::",  stringify!($ty), " = (1..4).collect();
+let b: fugue_tinyset::",  stringify!($ty), " = (3..6).into_iter().collect();
 
 assert_eq!(&a - &b, (1..3).collect());
 ```
@@ -68,8 +68,8 @@ impl<'b> std::ops::Sub<&'b $ty> for $ty {
 # Examples
 
 ```
-let a: tinyset::",  stringify!($ty), " = (1..4).collect();
-let b: tinyset::",  stringify!($ty), " = (3..6).into_iter().collect();
+let a: fugue_tinyset::",  stringify!($ty), " = (1..4).collect();
+let b: fugue_tinyset::",  stringify!($ty), " = (3..6).into_iter().collect();
 
 assert_eq!(a - &b, (1..3).collect());
 ```
@@ -91,8 +91,8 @@ impl<'a, 'b> std::ops::BitOr<&'b $ty> for &'a $ty {
 # Examples
 
 ```
-let a: tinyset::",  stringify!($ty), " = (1..4).collect();
-let b: tinyset::",  stringify!($ty), " = (3..6).collect();
+let a: fugue_tinyset::",  stringify!($ty), " = (1..4).collect();
+let b: fugue_tinyset::",  stringify!($ty), " = (3..6).collect();
 
 assert_eq!(&a | &b, (1..6).collect());
 ```
@@ -122,8 +122,8 @@ impl<'b> std::ops::BitOr<&'b $ty> for $ty {
 # Examples
 
 ```
-let a: tinyset::",  stringify!($ty), " = (1..4).collect();
-let b: tinyset::",  stringify!($ty), " = (3..6).collect();
+let a: fugue_tinyset::",  stringify!($ty), " = (1..4).collect();
+let b: fugue_tinyset::",  stringify!($ty), " = (3..6).collect();
 
 assert_eq!(a | &b, (1..6).collect());
 ```
